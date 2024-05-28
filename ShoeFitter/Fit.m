@@ -6,7 +6,7 @@ close all
 addpath("Fun/")
 addpath("Algorithmen/")
 addpath("../Global/SSMbuilder/")
-Folder = 'Scans/0001/';
+Folder = 'Scans/0015l/';
 load([Folder,'pt.mat'])
 load("trainData/Aligned/align.mat")
 load("trainData/templateData/toesIdx.mat")
@@ -14,10 +14,34 @@ load("trainData/templateData/toesIdx.mat")
 
 
 % GM
-[ptAligned,Z] = GM_3DOF(ssmV,MEAN,align.F,toesIdx,pt,1,1);
+[ptAligned,Z,outlierIdx] = GM_3DOF(ssmV,MEAN,align.F,[],pt,1,1);
 fig2 = figure();
 ax2 = axes(fig2);
-myPlot(ax2,ptAligned,Z.extractdata,ssmV,MEAN,align.F)
+myPlot(ax2,ptAligned,outlierIdx,Z.extractdata,ssmV,MEAN,align.F)
+
+
+ColMap = [0 0.4470 0.7410; 0.8500 0.3250 0.0980; 0.9290 0.6940 0.1250; 0.4940 0.1840 0.5560; 0.4660 0.6740 0.1880];
+Color = [];
+for i = 1:length(ptAligned)
+    colElement = ones(size(ptAligned{i})).*ColMap(i,:);
+    colElement(outlierIdx{i},:) = ones(size(colElement(outlierIdx{i},:)))*0.2;
+    Color = [Color;colElement];
+end
+
+ptCloud = pointCloud(vertcat(ptAligned{:}),'Color',Color);
+GM = SSM(ssmV,MEAN,Z.extractdata);
+
+
+if(contains(Folder,'l'))
+    ptCloud = pointCloud(ptCloud.Location.*[1 -1 1],'Color',Color);
+    GM = GM .* [1 -1 1];
+    align.F = [align.F(:,2),align.F(:,1),align.F(:,3)];
+end
+
+
+GMMesh = surfaceMesh(GM,align.F);
+pcwrite(ptCloud,[Folder,'result.ply']);
+writeSurfaceMesh(GMMesh,[Folder,'GMMesh.ply'])
 
 
 % Z = Z.extractdata;
@@ -26,10 +50,13 @@ myPlot(ax2,ptAligned,Z.extractdata,ssmV,MEAN,align.F)
 
 
 %% Plot end result
-function myPlot(ax,pt,Z,ssmV,MEAN,F)
+function myPlot(ax,pt,outlierIdx,Z,ssmV,MEAN,F)
     for i=1:length(pt)
-        scatter3(ax,pt{i}(:,1),pt{i}(:,2),pt{i}(:,3),2,"filled")
+        scatter3(ax,pt{i}(~outlierIdx{i},1),pt{i}(~outlierIdx{i},2),pt{i}(~outlierIdx{i},3),2,"filled")
         hold(ax,"on")
+    end
+    for i=1:length(pt)
+        scatter3(ax,pt{i}(outlierIdx{i},1),pt{i}(outlierIdx{i},2),pt{i}(outlierIdx{i},3),2,"filled","CData",[0.1,0.1,0.1])
     end
     visu(ax,Z,ssmV,MEAN,F)
     ax.Children(2).FaceAlpha = 0.2;
