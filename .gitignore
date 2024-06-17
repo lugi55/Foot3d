@@ -46,6 +46,7 @@ codegen/
 *.ios-desktop
 *.h5
 *.pyc
+*.t7
 
 
 
