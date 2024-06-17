@@ -43,5 +43,10 @@ codegen/
 *.xml
 *.log
 *.mat
+*.ios-desktop
+*.h5
+*.pyc
+
+
 
 !ShoeFitter/trainData/Aligned/align.mat
