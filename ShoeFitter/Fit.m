@@ -4,9 +4,8 @@ close all
 
 %% Load and Build Data
 addpath("Fun/")
-addpath("Algorithmen/")
 addpath("../Global/SSMbuilder/")
-Folder = 'Scans/0015l/';
+Folder = 'Scans/0016l/';
 load([Folder,'pt.mat'])
 load("trainData/Aligned/align.mat")
 load("trainData/templateData/toesIdx.mat")

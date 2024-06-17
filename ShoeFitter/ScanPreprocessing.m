@@ -8,8 +8,8 @@ offset = [0.07      ,0;
           -0.07     ,0.04;
           0         ,0.04];
 
-Folder = 'Scans/0015l/';
-listDir = dir([Folder,'*ply']);
+Folder = 'Scans/0016l/';
+listDir = dir([Folder,'*Yaw.ply']);
 
 for i=1:length(listDir)
     ptCloud = pcread([Folder,listDir(i).name]);
