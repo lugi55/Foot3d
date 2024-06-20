@@ -47,6 +47,7 @@ codegen/
 *.h5
 *.pyc
 *.t7
+*.stl
 
 
 
