@@ -1,20 +1,19 @@
 
 function [ptGitter,Z,outlierIdx] = GM_3DOF(ssmV,MEAN,F,ignoreIdx,ptGitter,outlierFlag,plotFlag)
 
-    oldRmse = 1;
-    Z = dlarray(zeros(50,1));
+    rmseRingBuffer = 10:-1:1;
+    Z = dlarray(zeros(120,1));
     for i = 1:200
 
         [ptGitter,outlierIdx] = myICP(ssmV,MEAN,F,Z,ignoreIdx,ptGitter,outlierFlag);
         [Z,rmseDist] = mySGDupdate(Z,ssmV,MEAN,F,ignoreIdx,ptGitter,outlierIdx);
-        deltaDist = oldRmse-mean(rmseDist.extractdata);
         if plotFlag
             GMPlot(gca,i,(rmseDist.extractdata))
         end
-        oldRmse = mean(rmseDist.extractdata);
-        disp(['iter: ',int2str(i),'  rmse Dist: ',sprintf('%0.3e',mean(rmseDist,"all")),'  delta Dist: ',sprintf('%0.3e',deltaDist)])
-        if(deltaDist<3e-7) 
-            %break; 
+        rmseRingBuffer = [rmseRingBuffer(2:end),mean(rmseDist.extractdata)];
+        disp(['iter: ',int2str(i),'  rmse Dist: ',sprintf('%0.3e',mean(rmseDist.extractdata)),'  delta Dist: ',sprintf('%0.3e',mean(-gradient(rmseRingBuffer)))])
+        if(mean(-gradient(rmseRingBuffer))<5e-7) 
+            break; 
         end
     end
 end
@@ -53,22 +52,13 @@ end
 function [n,d,pt] = myICPsub(surface,pt,ignoreIdx,outlierIdx)
     oldD = 1;
     for n=1:100
-        [idx,d] = knnsearch(surface.Vertices,pt,'NSMethod','kdtree');
-
-        ptBuf = pt(or(~outlierIdx,~ismember(idx,ignoreIdx)),:);
+        ptBuf = pt(~outlierIdx,:);
+        [idx,d] = knnsearch(surface.Vertices,ptBuf,'NSMethod','kdtree');
+        ptBuf(ismember(idx,ignoreIdx),:) = [];
         idx(ismember(idx,ignoreIdx)) = [];
 
+        tform = estgeotform2d(surface.Vertices(idx,1:2),ptBuf(:,1:2),'rigid'); 
 
-        vecDir = surface.Vertices(idx,:)-ptBuf;
-        dotProduct = dot(vecDir,surface.VertexNormals(idx,:),2);
-        normalPoint = surface.Vertices(idx,:)+dotProduct.*vecDir;
-
-        %Point2Point
-        %tform = estgeotform2d(surface.Vertices(idx,1:2),pt(:,1:2),'rigid'); 
-
-        %Point2Plane
-        tform = estgeotform2d(normalPoint(:,1:2),ptBuf(:,1:2),'rigid');  
-        
         pt = pt*rotz(tform.RotationAngle)-[tform.Translation,0];
         if oldD-mean(d) < 1e-9
             break

@@ -5,9 +5,9 @@ close all
 %% Load and Build Data
 addpath("Fun/")
 addpath("../Global/SSMbuilder/")
-Folder = 'Scans/0016l/';
+Folder = 'Scans/0013/';
 load([Folder,'pt.mat'])
-load("trainData/Aligned/align.mat")
+load("trainData/Aligned/align2.mat")
 load("trainData/templateData/toesIdx.mat")
 [ssmV,Eval,Evec,MEAN,PCcum,Modes]=SSMbuilder(align.X,align.Y,align.Z);
 
@@ -41,11 +41,6 @@ end
 GMMesh = surfaceMesh(GM,align.F);
 pcwrite(ptCloud,[Folder,'result.ply']);
 writeSurfaceMesh(GMMesh,[Folder,'GMMesh.ply'])
-
-
-% Z = Z.extractdata;
-% save([Folder,'alignPt.mat'],"pt")
-% save([Folder,'Z.mat'],"Z")
 
 
 %% Plot end result

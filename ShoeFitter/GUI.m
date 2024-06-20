@@ -1,14 +1,10 @@
 clc
 clear
 
-
-
 addpath("../Global/SSMbuilder/")
 addpath("Fun/")
-
-
-load("trainData/Aligned/align.mat")
-data.Zdim = 50;
+load("trainData/Aligned/align2.mat")
+data.Zdim = 100;
 
 fig = uifigure("AutoResizeChildren",0);
 p = uipanel(fig,"Units","normalized","Position",[0 0 0.3 1],"AutoResizeChildren",0);
