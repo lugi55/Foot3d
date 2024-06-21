@@ -8,7 +8,7 @@ offset = [0.07      ,0;
           -0.07     ,0.04;
           0         ,0.04];
 
-Folder = 'Scans/0016l/';
+Folder = 'Scans/0013/';
 listDir = dir([Folder,'*Yaw.ply']);
 
 for i=1:length(listDir)
@@ -17,6 +17,7 @@ for i=1:length(listDir)
     tform = normalRotation(model,[0;0;1]);
     ptCloud = pctransform(ptCloud,tform);
     ptCloud = pointCloud(ptCloud.Location + [0,0,model.Parameters(4)]);
+    ptCloudFull = ptCloud;
     ptCloud = select(ptCloud,outIdx);
     ptCloud = select(ptCloud,ptCloud.Location(:,3)<0.09);
     ptCloud = pcdenoise(ptCloud);
@@ -24,10 +25,14 @@ for i=1:length(listDir)
     ptCloud = select(ptCloud,label==mode(label));
     ptMean = mean(ptCloud.Location(),1);
     ptCloud = pointCloud(ptCloud.Location - [ptMean(1:2),0]);
+    ptCloudFull = pointCloud(ptCloudFull.Location - [ptMean(1:2),0]);
     ptCloud = pointCloud(ptCloud.Location*rotz(180+str2double(listDir(i).name(1:3))));
+    ptCloudFull = pointCloud(ptCloudFull.Location*rotz(180+str2double(listDir(i).name(1:3))));
     ptCloud = pointCloud(ptCloud.Location + [offset(i,:),0]);
+    ptCloudFull = pointCloud(ptCloudFull.Location + [offset(i,:),0]);
     if(contains(Folder,'l'))
         ptCloud = pointCloud(ptCloud.Location.*[1 -1 1]); %Left to Right Foot
+        ptCloudFull = pointCloud(ptCloudFull.Location.*[1 -1 1]);
     end
     scatter3(ptCloud.Location(:,1),ptCloud.Location(:,2),ptCloud.Location(:,3),'.')
     xlabel("x")
@@ -37,11 +42,11 @@ for i=1:length(listDir)
     hold on
 
     pt{i} = double(ptCloud.Location);
-
+    ptFull{i} = double(ptCloudFull.Location)
 end
 
 save([Folder,'pt.mat'],'pt')
-
+save([Folder,'ptFull.mat'],'ptFull')
 
 
 

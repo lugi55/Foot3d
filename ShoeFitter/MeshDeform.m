@@ -8,10 +8,7 @@ addpath("../Global/Remesher/")
 addpath("../Global/Fun/")
 addpath("Fun/")
 
-addpath(genpath("Fun/nicp/icp"))
-addpath(genpath("Fun/nicp/geom3d-2019.09.26"))
-addpath(genpath("Fun/nicp/toolbox_graph/"))
-addpath(genpath('Fun/nicp/toolbox_graph/toolbox_graph/'));
+
 
 
 % templateMesh = readSurfaceMesh('trainData/2b0ce86e-b246-46e2-8748-6e5278e732f0_debug/foot_mesh_smoothed_2.ply');
